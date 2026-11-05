@@ -5,11 +5,11 @@ To copy this checklist please go to [this link](https://github.com/hedgedoc/hedg
 ## Preparations:
 
 - [ ] Create release PR(s)
-  - [ ] In the main repo (actually only create a local branch to include all the fixes, additions and so on and only push and create a PR after testing)
   - [ ] Release PR in <https://github.com/hedgedoc/container>
     - [ ] Update version in `.github/workflows/release.yml`
     - [ ] Update version in `docker-compose.yml`
   - [ ] Release PR in <https://github.com/hedgedoc/social-media>
+- [ ] Create a local `release/1.X.Y` branch from current `master` and merge/change the following things in it
 - [ ] Security fixes (make sure all available undisclosed security fixes are merged)
 - [ ] Bump the version
   - [ ] docs/content/dev/openapi.yml
@@ -47,15 +47,17 @@ To copy this checklist please go to [this link](https://github.com/hedgedoc/hedg
 
 ## Final Testing:
 
-- [ ] Create release tar ball
+- [ ] Push the `release/1.X.Y` branch to GitHub
+- [ ] Create pre-release tar ball for that branch
+
 ```bash
 mkdir /tmp/hedgedoc && cd /tmp/hedgedoc
-git clone -b master https://github.com/hedgedoc/hedgedoc.git .
+git clone -b release/1.X.Y https://github.com/hedgedoc/hedgedoc.git .
 yarn install
 yarn build:ot
 yarn build
 cd ..
-tar cvzf hedgedoc-x.y.z.tar.gz --sort=name --exclude hedgedoc/node_modules --exclude hedgedoc/.git --exclude hedgedoc/.github --exclude hedgedoc/.yarn/cache hedgedoc
+tar cvzf hedgedoc-1.X.Y-test.tar.gz --sort=name --exclude hedgedoc/node_modules --exclude hedgedoc/.git --exclude hedgedoc/.github --exclude hedgedoc/.yarn/cache hedgedoc
 ```
 
 Use this tar ball to test the following things:
@@ -318,8 +320,19 @@ hedgedoc-local:1.x.y-alpine                     "/usr/local/bin/dock…"   29 se
 
 ## Release:
 
-- [ ] Merge Release PR in main repo
-- [ ] Tag commit with `git tag 1.x.y` and push it
+- [ ] Open PR for merging `release/1.X.Y` into `master` and merge it after CI passes
+- [ ] Pull `master`, tag the last commit with `git tag 1.x.y` and push it
+- [ ] Create fresh release tar ball from `master`
+```bash
+rm -rf /tmp/hedgedoc
+mkdir /tmp/hedgedoc && cd /tmp/hedgedoc
+git clone -b master https://github.com/hedgedoc/hedgedoc.git .
+yarn install
+yarn build:ot
+yarn build
+cd ..
+tar cvzf hedgedoc-1.X.Y.tar.gz --sort=name --exclude hedgedoc/node_modules --exclude hedgedoc/.git --exclude hedgedoc/.github --exclude hedgedoc/.yarn/cache hedgedoc
+```
 - [ ] Create release in GitHub and upload tar ball to GitHub
 - [ ] Update placeholders in Security Advisories (if they exist)
 - [ ] Publish Security Advisories (if they exist)
